@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="Student" type="Student"/>
+
+    <xs:element name="Course" type="Course"/>
+
+    <xs:complexType name="Student">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="age" type="xs:int"/>
+            <xs:element ref="Course" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Course">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="courseName" type="xs:string"/>
+            <xs:element name="facultyName" type="xs:string"/>
+            <xs:element ref="Student" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
