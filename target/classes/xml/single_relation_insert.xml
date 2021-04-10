@@ -1,0 +1,6 @@
+<Employee>
+    <id>2</id>
+    <firstName>Vinayak</firstName>
+    <lastName>Chaturvedi</lastName>
+    <operation>insert</operation>
+</Employee>
