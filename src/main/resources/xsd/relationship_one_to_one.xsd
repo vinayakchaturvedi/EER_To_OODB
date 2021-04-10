@@ -16,10 +16,11 @@
 
     <xs:complexType name="Person">
         <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
             <xs:element name="firstName" type="xs:string"/>
             <xs:element name="lastName" type="xs:string"/>
             <xs:element name="age" type="xs:int"/>
-            <xs:element ref="Passport"/>
+
         </xs:sequence>
     </xs:complexType>
 

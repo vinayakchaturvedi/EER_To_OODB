@@ -7,6 +7,7 @@ import com.db4o.ObjectSet;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DynamicMappingParser {
@@ -14,15 +15,18 @@ public class DynamicMappingParser {
     private final String packageName = "com.example.DM_Final.";
 
     public Object parse(String request) throws Exception {
-        String[] split = request.split("&");
+        String[] split = request.split("@")[0].split("&");
         Map<String, Object> map = new HashMap<>();
         for (String s : split) {
             map.put(s.split("=")[0], s.split("=")[1]);
         }
-        return parse(map.get("className").toString(), map);
+        if(request.split("@").length==1)
+            return parse(map.get("className").toString(), map,"");
+        else
+            return parse(map.get("className").toString(), map,request.split("@")[1]);
     }
 
-    public Object parse(String className, Map<String, Object> parameters) throws Exception {
+    public Object parse(String className, Map<String, Object> parameters,String relatedQuery) throws Exception {
         Class<?> clazz = Class.forName(packageName + className);
         Object object = clazz.newInstance();
         Class<?> aClass = clazz.cast(object).getClass();
@@ -38,6 +42,35 @@ public class DynamicMappingParser {
                     field.set(object, Double.valueOf(parameters.get(field.getName()).toString()));
                 } else {
                     field.set(object, parameters.get(field.getName()));
+                }
+            }
+        }
+        //relatedQueryOperations
+        if(!relatedQuery.equals("")){
+            String[] split = relatedQuery.split("&");
+            Map<String, Object> map = new HashMap<>();
+            for (String s : split) {
+                map.put(s.split("=")[0], s.split("=")[1]);
+            }
+            switch (map.get("queryType").toString()){
+                case "relationship": {
+                    String relationType=map.get("relationship").toString();
+                    List<Object> listofrelatedObject = new RelationshipParser().parser(relatedQuery);
+                    if(listofrelatedObject==null||listofrelatedObject.size()==0) break;
+                    switch (relationType){
+                        case "oneToOne":{
+                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject.get(0));
+                            break;
+                        }
+                        case "oneToMany":{
+                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
+                            break;
+                        }
+                        case "manyToMany":{
+                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -72,16 +105,18 @@ public class DynamicMappingParser {
     }
 
     public Object insert(Object object) {
-        ObjectContainer db = Db4o.openFile("Demo");
+        ObjectContainer db=null;
         try {
             if (retrieve(object) == null) {
+                db = Db4o.openFile("Demo");
                 db.store(object);
                 return object;
             }
         } catch (Exception ex) {
             System.out.println(ex.toString());
         } finally {
-            db.close();
+            if(db!=null)
+                db.close();
         }
         return null;
     }
