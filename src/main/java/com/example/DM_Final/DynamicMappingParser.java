@@ -6,6 +6,7 @@ import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,11 @@ public class DynamicMappingParser {
                             break;
                         }
                         case "oneToMany":{
+                            Object relatedObject = listofrelatedObject.get(0);
+                            Field[] relatedDeclaredFields = relatedObject.getClass().getDeclaredFields();
+                            //check code
+                            List<Object> listOfObject= (List<Object>) relatedDeclaredFields[relatedDeclaredFields.length-1].get(relatedObject);
+                            listOfObject.add(object);
                             declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
                             break;
                         }
