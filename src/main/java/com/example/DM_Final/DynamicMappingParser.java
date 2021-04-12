@@ -5,6 +5,7 @@ import com.db4o.Db4o;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
 
+import java.io.EOFException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +22,13 @@ public class DynamicMappingParser {
         for (String s : split) {
             map.put(s.split("=")[0], s.split("=")[1]);
         }
-        if(request.split("@").length==1)
-            return parse(map.get("className").toString(), map,"");
+        if (request.split("@").length == 1)
+            return parse(map.get("className").toString(), map, "");
         else
-            return parse(map.get("className").toString(), map,request.split("@")[1]);
+            return parse(map.get("className").toString(), map, request.split("@")[1]);
     }
 
-    public Object parse(String className, Map<String, Object> parameters,String relatedQuery) throws Exception {
+    public Object parse(String className, Map<String, Object> parameters, String relatedQuery) throws Exception {
         Class<?> clazz = Class.forName(packageName + className);
         Object object = clazz.newInstance();
         Class<?> aClass = clazz.cast(object).getClass();
@@ -47,33 +48,42 @@ public class DynamicMappingParser {
             }
         }
         //relatedQueryOperations
-        if(!relatedQuery.equals("")){
+        if (!relatedQuery.equals("")) {
             String[] split = relatedQuery.split("&");
             Map<String, Object> map = new HashMap<>();
             for (String s : split) {
                 map.put(s.split("=")[0], s.split("=")[1]);
             }
-            switch (map.get("queryType").toString()){
+            switch (map.get("queryType").toString()) {
                 case "relationship": {
-                    String relationType=map.get("relationship").toString();
+                    String relationType = map.get("relationship").toString();
                     List<Object> listofrelatedObject = new RelationshipParser().parser(relatedQuery);
-                    if(listofrelatedObject==null||listofrelatedObject.size()==0) break;
-                    switch (relationType){
-                        case "oneToOne":{
-                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject.get(0));
+                    if (listofrelatedObject == null || listofrelatedObject.size() == 0) break;
+                    switch (relationType) {
+                        case "oneToOne": {
+                            declaredFields[declaredFields.length - 1].set(object, listofrelatedObject.get(0));
                             break;
                         }
-                        case "oneToMany":{
-                            Object relatedObject = listofrelatedObject.get(0);
+                        case "oneToMany": {
+                            Object relatedObject = listofrelatedObject.get(0);              //In One to many we'll get only 1 related object
                             Field[] relatedDeclaredFields = relatedObject.getClass().getDeclaredFields();
                             //check code
-                            List<Object> listOfObject= (List<Object>) relatedDeclaredFields[relatedDeclaredFields.length-1].get(relatedObject);
+                            List<Object> listOfObject = (List<Object>) relatedDeclaredFields[relatedDeclaredFields.length - 1].get(relatedObject);
+                            if (listOfObject == null) {
+                                listOfObject = new ArrayList<>();
+                                relatedDeclaredFields[relatedDeclaredFields.length - 1].set(relatedObject, listOfObject);
+                            }
                             listOfObject.add(object);
-                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
-                            break;
+                            declaredFields[declaredFields.length - 1].set(object, listofrelatedObject.get(0));
+                            update(relatedObject);
+                            Object response = cloneObject(object);
+
+
+
+                            return response;
                         }
-                        case "manyToMany":{
-                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
+                        case "manyToMany": {
+                            declaredFields[declaredFields.length - 1].set(object, listofrelatedObject);
                             break;
                         }
                     }
@@ -100,6 +110,31 @@ public class DynamicMappingParser {
         return null;
     }
 
+    public Object cloneObject(Object object) throws Exception {
+        Field[] declaredFields = object.getClass().getDeclaredFields();
+        Object clonedObject = object.getClass().newInstance();
+
+        for (Field field : declaredFields) {
+            if(field.equals(declaredFields[declaredFields.length-1])) continue;
+            field.set(clonedObject, field.get(object));
+
+        }
+
+        Object clonedRelatedObject = declaredFields[declaredFields.length-1].get(object).getClass().newInstance();
+        Object relatedObject = declaredFields[declaredFields.length-1].get(object);
+        Field[] relatedDeclaredFields = relatedObject.getClass().getDeclaredFields();
+
+        for (Field field : relatedDeclaredFields) {
+            if(field.equals(relatedDeclaredFields[relatedDeclaredFields.length-1])) continue;
+            field.set(clonedRelatedObject, field.get(relatedObject));
+
+        }
+
+        declaredFields[declaredFields.length-1].set(clonedObject, clonedRelatedObject);
+
+        return clonedObject;
+    }
+
     public Object getAll(Object object) {
         ObjectContainer db = Db4o.openFile("Demo");
         try {
@@ -111,7 +146,7 @@ public class DynamicMappingParser {
     }
 
     public Object insert(Object object) {
-        ObjectContainer db=null;
+        ObjectContainer db = null;
         try {
             if (retrieve(object) == null) {
                 db = Db4o.openFile("Demo");
@@ -121,7 +156,7 @@ public class DynamicMappingParser {
         } catch (Exception ex) {
             System.out.println(ex.toString());
         } finally {
-            if(db!=null)
+            if (db != null)
                 db.close();
         }
         return null;
