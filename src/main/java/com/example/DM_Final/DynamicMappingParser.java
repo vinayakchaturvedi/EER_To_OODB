@@ -77,14 +77,27 @@ public class DynamicMappingParser {
                             declaredFields[declaredFields.length - 1].set(object, listofrelatedObject.get(0));
                             update(relatedObject);
                             Object response = cloneObject(object);
-
-
-
                             return response;
                         }
                         case "manyToMany": {
-                            declaredFields[declaredFields.length - 1].set(object, listofrelatedObject);
-                            break;
+                            //listOfRelatedObject - many to many
+
+                            Field[] relatedDeclaredFields = listofrelatedObject.get(0).getClass().getDeclaredFields();
+                            //update student in courses list
+                            for(Object relatedObject :listofrelatedObject){
+                                List<Object> listOfObject = (List<Object>) relatedDeclaredFields[relatedDeclaredFields.length - 1].get(relatedObject);
+                                if (listOfObject == null) {
+                                    listOfObject = new ArrayList<>();
+                                    relatedDeclaredFields[relatedDeclaredFields.length - 1].set(relatedObject, listOfObject);
+                                }
+                                listOfObject.add(object);
+                            }
+                            declaredFields[declaredFields.length-1].set(object,listofrelatedObject);
+                            for(Object relatedObject:listofrelatedObject){
+                                update((relatedObject));
+                            }
+                            Object response = cloneObject(object);
+                            return response;
                         }
                     }
                 }
@@ -119,7 +132,25 @@ public class DynamicMappingParser {
             field.set(clonedObject, field.get(object));
 
         }
+        if(declaredFields[declaredFields.length-1].get(object)==null){
+            return clonedObject;
+        }
+        if(declaredFields[declaredFields.length-1].get(object).getClass().toString().equals("class java.util.ArrayList")){
+            List<Object> listofrelatedObjects= (List<Object>) declaredFields[declaredFields.length-1].get(object);
+            List<Object> listOfClonedRelatedObject = new ArrayList<>();
+            for(Object relatedObject:listofrelatedObjects){
+                Object clonedRelatedObject = relatedObject.getClass().newInstance();
+                Field[] relatedDeclaredFields = relatedObject.getClass().getDeclaredFields();
 
+                for (Field field : relatedDeclaredFields) {
+                    if(field.equals(relatedDeclaredFields[relatedDeclaredFields.length-1])) continue;
+                    field.set(clonedRelatedObject, field.get(relatedObject));
+                }
+                listOfClonedRelatedObject.add(clonedRelatedObject);
+            }
+            declaredFields[declaredFields.length-1].set(clonedObject,listOfClonedRelatedObject);
+            return  clonedObject;
+        }
         Object clonedRelatedObject = declaredFields[declaredFields.length-1].get(object).getClass().newInstance();
         Object relatedObject = declaredFields[declaredFields.length-1].get(object);
         Field[] relatedDeclaredFields = relatedObject.getClass().getDeclaredFields();
@@ -145,13 +176,14 @@ public class DynamicMappingParser {
         }
     }
 
-    public Object insert(Object object) {
+    public String insert(Object object) {
         ObjectContainer db = null;
         try {
             if (retrieve(object) == null) {
                 db = Db4o.openFile("Demo");
                 db.store(object);
-                return object;
+
+                return "Inserted Sucessfully";
             }
         } catch (Exception ex) {
             System.out.println(ex.toString());
@@ -159,10 +191,10 @@ public class DynamicMappingParser {
             if (db != null)
                 db.close();
         }
-        return null;
+        return "Error";
     }
 
-    public Object update(Object newObject) throws Exception {
+    public String update(Object newObject) throws Exception {
         Object oldObject = retrieve(newObject);
         delete(oldObject);
         ObjectContainer db = Db4o.openFile("Demo");
@@ -174,16 +206,16 @@ public class DynamicMappingParser {
                 }
             }
             db.store(oldObject);
-            return oldObject;
+            return "Sucessfully Updated";
         } catch (Exception ex) {
             System.out.println(ex.toString());
         } finally {
             db.close();
         }
-        return null;
+        return "Error";
     }
 
-    public Object delete(Object object) throws Exception {
+    public String delete(Object object) throws Exception {
         ObjectContainer db = Db4o.openFile("Demo");
         try {
             ObjectSet<?> result = db.query(object.getClass());
@@ -192,14 +224,15 @@ public class DynamicMappingParser {
                     System.out.println("Found match");
                     System.out.println(o);
                     db.delete(o);
-                    return o;
+
+                    return "Deleted Sucessfully";
                 }
             }
         } finally {
             db.close();
         }
         System.out.println("No Match found");
-        return null;
+        return "Error";
     }
 
     public Object retrieve(Object object) throws Exception {
@@ -210,7 +243,8 @@ public class DynamicMappingParser {
                 if (object.getClass().getDeclaredFields()[0].get(object).equals(o.getClass().getDeclaredFields()[0].get(o))) {
                     System.out.println("Found match");
                     System.out.println(o);
-                    return o;
+                    Object response = cloneObject(o);
+                    return response;
                 }
             }
         } finally {
