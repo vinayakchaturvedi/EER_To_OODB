@@ -47,7 +47,7 @@ public class DynamicMappingParser {
                 }
             }
         }
-        //relatedQueryOperations
+        //relatedQuery Operations
         if (!relatedQuery.equals("")) {
             String[] split = relatedQuery.split("&");
             Map<String, Object> map = new HashMap<>();
@@ -55,6 +55,7 @@ public class DynamicMappingParser {
                 map.put(s.split("=")[0], s.split("=")[1]);
             }
             switch (map.get("queryType").toString()) {
+                //RelationShip parser
                 case "relationship": {
                     String relationType = map.get("relationship").toString();
                     List<Object> listofrelatedObject = new RelationshipParser().parser(relatedQuery);
@@ -101,6 +102,11 @@ public class DynamicMappingParser {
                         }
                     }
                 }
+
+                //inheritance parser
+                case "inheritance":{
+                    new InheritanceParser().parse(object,className,relatedQuery);
+                }
             }
         }
         switch (parameters.get("operation").toString()) {
@@ -124,7 +130,12 @@ public class DynamicMappingParser {
     }
 
     public Object cloneObject(Object object) throws Exception {
+
         Field[] declaredFields = object.getClass().getDeclaredFields();
+        String lastField=declaredFields[declaredFields.length-1].getType().toString();
+        if(lastField.equals("int")||lastField.equals("double")||lastField.equals("String")){
+            return object;
+        }
         Object clonedObject = object.getClass().newInstance();
 
         for (Field field : declaredFields) {
