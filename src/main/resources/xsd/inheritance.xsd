@@ -21,7 +21,7 @@
                 <extension base="demo:Sensor">
                     <sequence>
                         <element name="id" type="int"/>
-                        <element name="temperature" type="int"></element>
+                        <element name="temperature" type="int"/>
                     </sequence>
                 </extension>
             </complexContent>
@@ -34,7 +34,7 @@
                 <extension base="demo:Sensor">
                     <sequence>
                         <element name="id" type="int"/>
-                        <element name="Pressure" type="int"></element>
+                        <element name="Pressure" type="int"/>
                     </sequence>
                 </extension>
             </complexContent>
