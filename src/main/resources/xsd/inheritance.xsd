@@ -5,20 +5,36 @@
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
         version="2.0">
- 
-    <complexType name="Animals">
+
+
+    <complexType name="Sensor">
         <sequence>
-            <element name="type" type="string"/>
+            <element name="description" type="string"/>
         </sequence>
     </complexType>
+
+
     
-    <element name ="Cat">
+    <element name ="TemperatureSensor">
         <complexType>
             <complexContent>
-                <extension base="demo:Animals">
+                <extension base="demo:Sensor">
                     <sequence>
-                        <element name="name" type="string"></element>
-                        <element name="age" type="int"></element>
+                        <element name="id" type="int"/>
+                        <element name="temperature" type="int"></element>
+                    </sequence>
+                </extension>
+            </complexContent>
+        </complexType>
+    </element>
+
+    <element name ="PressureSensor">
+        <complexType>
+            <complexContent>
+                <extension base="demo:Sensor">
+                    <sequence>
+                        <element name="id" type="int"/>
+                        <element name="Pressure" type="int"></element>
                     </sequence>
                 </extension>
             </complexContent>
