@@ -1,0 +1,11 @@
+#Insert
+className=Employee&operation=insert&id=1&firstName=Vinayak&lastName=Chaturvedi
+
+#Retreieve
+className=Employee&operation=retrieve&id=1
+
+#Update
+className=Employee&operation=update&id=1&firstName=Raj
+
+#Delete
+className=Employee&operation=delete&id=1

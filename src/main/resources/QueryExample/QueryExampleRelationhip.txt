@@ -1,0 +1,13 @@
+
+#Insert-OneToOne
+className=Passport&operation=insert&id=1&countryCode=India
+@queryType=relationship&relationship=oneToOne&relatedId=[1]&relatedClass=Passport
+
+
+#Insert-OneToMany
+className=Student&operation=insert&id=1&firstName=Rushikesh&lastName=Jachak
+@queryType=relationship&relationship=oneToMany&relatedId=[1]&relatedClass=Department
+
+#Insert-ManyToMany
+className=Faculty&operation=insert&id=1&name=Rushikesh&age=22
+@queryType=relationship&relationship=manyToMany&relatedId=[1,2]&relatedClass=Course
