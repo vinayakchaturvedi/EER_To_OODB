@@ -9,3 +9,6 @@ className=Employee&operation=update&id=1&firstName=Raj
 
 #Delete
 className=Employee&operation=delete&id=1
+
+#getAll
+className=Employee&operation=getAll
