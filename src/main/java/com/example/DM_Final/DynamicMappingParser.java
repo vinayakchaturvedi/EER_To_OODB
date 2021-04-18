@@ -4,8 +4,6 @@ package com.example.DM_Final;
 import com.db4o.Db4o;
 import com.db4o.ObjectContainer;
 import com.db4o.ObjectSet;
-
-import java.io.EOFException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +31,7 @@ public class DynamicMappingParser {
         Object object = clazz.newInstance();
         Class<?> aClass = clazz.cast(object).getClass();
         Field[] declaredFields = aClass.getDeclaredFields();
-        int i = 1;
+
 
         for (Field field : declaredFields) {
             if (parameters.containsKey(field.getName())) {
@@ -136,7 +134,7 @@ public class DynamicMappingParser {
     public Object cloneObject(Object object) throws Exception {
 
         Field[] declaredFields = object.getClass().getDeclaredFields();
-        String lastField=declaredFields[declaredFields.length-1].getType().getSimpleName().toString();
+        String lastField=declaredFields[declaredFields.length-1].getType().getSimpleName();
         if(lastField.equals("int")||lastField.equals("double")||lastField.equals("String")){
             return object;
         }
@@ -185,7 +183,11 @@ public class DynamicMappingParser {
         ObjectContainer db = Db4o.openFile("Demo");
         try {
             ObjectSet<?> query = db.query(object.getClass());
-            return query;
+            List<Object> response = new ArrayList<>();
+            while (query.hasNext()){
+                response.add(query.next());
+            }
+            return response;
         } finally {
             db.close();
         }
