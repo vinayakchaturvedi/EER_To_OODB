@@ -1,0 +1,9 @@
+#Insert
+className=Car&operation=insert&id=1&model=ferrari@queryType=inheritance&licensePlate=12345
+className=Car&operation=insert&id=2&model=BMW@queryType=inheritance
+
+className=Truck&operation=insert&id=1&model=Volvo@queryType=inheritance&licensePlate=67890
+className=Truck&operation=insert&id=2&model=Mahindra@queryType=inheritance
+
+#Retrieve Union
+className=RegisteredVehicle@queryType=union
