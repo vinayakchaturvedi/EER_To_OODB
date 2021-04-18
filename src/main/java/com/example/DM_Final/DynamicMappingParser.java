@@ -106,6 +106,10 @@ public class DynamicMappingParser {
                 //inheritance parser
                 case "inheritance":{
                     new InheritanceParser().parse(object,className,relatedQuery);
+                    break;
+                }
+                case "union":{
+                    return new UnionParser().parse(object,className);
                 }
             }
         }
@@ -132,7 +136,7 @@ public class DynamicMappingParser {
     public Object cloneObject(Object object) throws Exception {
 
         Field[] declaredFields = object.getClass().getDeclaredFields();
-        String lastField=declaredFields[declaredFields.length-1].getType().toString();
+        String lastField=declaredFields[declaredFields.length-1].getType().getSimpleName().toString();
         if(lastField.equals("int")||lastField.equals("double")||lastField.equals("String")){
             return object;
         }

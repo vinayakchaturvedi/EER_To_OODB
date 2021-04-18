@@ -5,22 +5,37 @@
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
         version="2.0">
-    <element name="jeans_size">
-        <simpleType>
-            <union memberTypes="demo:sizebyno demo:sizebystring" />
-        </simpleType>
+
+    <complexType name="RegisteredVehicle">
+        <choice>
+            <element name="licensePlate" type="string"/>
+        </choice>
+    </complexType>
+
+    <element name ="Car">
+        <complexType>
+            <complexContent>
+                <extension base="demo:RegisteredVehicle">
+                    <sequence>
+                        <element name="id" type="int"/>
+                        <element name="model" type="string"/>
+                    </sequence>
+                </extension>
+            </complexContent>
+        </complexType>
     </element>
 
-    <simpleType name="sizebyno">
-        <restriction base="int">
-        </restriction>
-    </simpleType>
+    <element name ="Truck">
+        <complexType>
+            <complexContent>
+                <extension base="demo:RegisteredVehicle">
+                    <sequence>
+                        <element name="id" type="int"/>
+                        <element name="model" type="string"/>
+                    </sequence>
+                </extension>
+            </complexContent>
+        </complexType>
+    </element>
 
-    <simpleType name="sizebystring">
-        <restriction base="string">
-            <enumeration value="small"/>
-            <enumeration value="medium"/>
-            <enumeration value="large"/>
-        </restriction>
-    </simpleType>
 </schema>
