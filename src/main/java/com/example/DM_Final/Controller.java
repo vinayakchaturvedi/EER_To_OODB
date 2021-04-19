@@ -16,7 +16,9 @@ public class Controller {
         System.out.println("Handle operation ");
         DynamicMappingParser parser = new DynamicMappingParser();
         Object parse = parser.parse(request);
-        return parse;
+        if(parse.getClass().getSimpleName().equals("String"))
+            return parse;
+        return new CloneObject().clone(parse);
     }
 }
 
