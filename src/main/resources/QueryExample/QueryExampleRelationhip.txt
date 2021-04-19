@@ -1,13 +1,21 @@
 
 #Insert-OneToOne
-className=Passport&operation=insert&id=1&countryCode=India
-@queryType=relationship&relationship=oneToOne&relatedId=[1]&relatedClass=Passport
-
+className=Person&operation=insert&id=1&firstName=Hemang&lastName=Vyas&age=22
+className=Person&operation=retrieve&id=1
+className=Passport&operation=insert&id=1&countryCode=IND@queryType=relationship&relationship=oneToOne&relatedId=[1]&relatedClass=Person
+className=Passport&operation=retrieve&id=1
 
 #Insert-OneToMany
-className=Student&operation=insert&id=1&firstName=Rushikesh&lastName=Jachak
-@queryType=relationship&relationship=oneToMany&relatedId=[1]&relatedClass=Department
+className=Department&operation=insert&id=1&name=CSE&head=Hemang
+className=Department&operation=retrieve&id=1
+className=Student&operation=insert&id=1&firstName=Rushikesh&lastName=Jachak@queryType=relationship&relationship=oneToMany&relatedId=[1]&relatedClass=Department
+className=Student&operation=insert&id=2&firstName=Vinayak&lastName=Chaturvedi@queryType=relationship&relationship=oneToMany&relatedId=[1]&relatedClass=Department
+className=Department&operation=retrieve&id=1
 
 #Insert-ManyToMany
-className=Faculty&operation=insert&id=1&name=Rushikesh&age=22
-@queryType=relationship&relationship=manyToMany&relatedId=[1,2]&relatedClass=Course
+className=Course&operation=insert&id=1&courseName=DM
+className=Course&operation=insert&id=2&courseName=SS
+className=Faculty&operation=insert&id=1&name=RC&age=40@queryType=relationship&relationship=manyToMany&relatedId=[1,2]&relatedClass=Course
+className=Faculty&operation=insert&id=2&name=BT&age=40@queryType=relationship&relationship=manyToMany&relatedId=[2]&relatedClass=Course
+className=Course&operation=retrieve&id=2
+className=Course&operation=retrieve&id=1
